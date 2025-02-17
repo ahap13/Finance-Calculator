@@ -1,5 +1,6 @@
 
 import matplotlib.pyplot as plt
+import copy
 
 """Each function will take amount owed, interest rate, minimum payment, and total amount to be applied monthly to debt.
 
@@ -10,12 +11,14 @@ One function will calculate mortgage amount
 
 All return a graph of payoff over time, with one line including only minimum payments and one line being extra payment track"""
 
-def mortgage_calculator(amount: int,
-                        rate: float,
-                        term: int,
-                        remaining_term_yrs: int,
-                        remaining_term_months: int,
-                        extra_payment_amount: int):
+def mortgage_calculator(
+    amount: float,
+    rate: float,
+    term: int,
+    remaining_term_yrs: int,
+    remaining_term_months: int,
+    extra_payment_amount: int
+    ):
     """Mortgage payoff timeline calculator. 
     
     Returns minimum monthly payment timeline and extra payment timeline with graphs, amount saved on interest, time saved
@@ -85,16 +88,16 @@ def mortgage_calculator(amount: int,
             xprincipal_paid = round(xprincipal_paid + principal, 2)
             x_amount_paid = round(x_amount_paid + min_payment, 2)
             xamount_remaining = round(xamount_remaining - principal)
-            if xamount_remaining < 0: xamount_remaining = 0
             xmonthly_remaining_balances.append(xamount_remaining)
         else:
             interest = round(xamount_remaining * i, 2)
+            if interest + xamount_remaining < xpayment:
+                xpayment = interest + xamount_remaining
             principal = round(xpayment - interest)
             xinterest_paid = round(xinterest_paid + interest, 2)
             xprincipal_paid = round(xprincipal_paid + principal, 2)
             x_amount_paid = round(x_amount_paid + xpayment, 2)
             xamount_remaining = round(xamount_remaining - principal)
-            if xamount_remaining < 0: xamount_remaining = 0
             xmonthly_remaining_balances.append(xamount_remaining)
         month_count += 1
     
@@ -127,8 +130,104 @@ def mortgage_calculator(amount: int,
     print(f"Time Saved with Extra Payments:         {(n - month_count) // 12} years, {(n - month_count) % 12} months")
 
 
-def cc_calculator():
-    pass
+# May end up making the graphing data loops separate functions. Prob gonna reuse them in every func
+def cc_calculator(num_of_cards: int):
+    """Credit card payoff timeline calculator. 
+    
+    Returns minimum monthly payment timeline and extra payment timeline with graphs, amount saved on interest, time saved
+    Also returns a plan to pay off the cards using the snowball method with the extra payment
 
+    Using 30 days as average month for calculating interest for the purpose of this project
+    
+    Args: 
+    num_of_cards: The number of credit cards the user has"""
 
-mortgage_calculator(400000, 5, 30, 22, 6, 500)
+    # Gather card data 
+    cards = {}
+    for card_num in range(1, num_of_cards + 1):
+        print(f"Card {card_num}:")
+        amount = float(input("Balance: "))
+        apr = float(input("APR: "))
+        min_payment = float(input("Minimum Payment: "))
+        cards[f"card{card_num}"] = [amount, apr, min_payment]
+    
+    # Calculate how long it would take paying the minimum on each
+    cards_copy = copy.deepcopy(cards)
+    monthly_remaining_balances = [] # This will be data for graph
+    month_count = 0
+    total_balance = sum([data[0] for data in cards_copy.values()])
+    interest_paid = 0
+
+    while total_balance > 0:
+        month_count += 1
+        for card in cards_copy.values():
+            amount_remaining = card[0]
+            if amount_remaining == 0: 
+                continue # Move on from this card if it's paid off
+            apr = card[1]
+            min_payment = card[2]
+            interest = round((((apr / 100) / 365) * amount_remaining) * 30, 2)
+            if interest + amount_remaining < min_payment:
+                min_payment = interest + amount_remaining
+            principle = round(min_payment - interest, 2)
+            amount_remaining = round(amount_remaining - principle, 2)
+            card[0] = amount_remaining
+            total_balance = round(total_balance - principle, 2)
+            interest_paid = round(interest_paid + interest, 2)
+        monthly_remaining_balances.append(total_balance)
+
+    months = list(range(1, month_count + 1))
+
+    # Do the same as above but apply extra payment to smallest card
+    # Once smallest card is paid off, add that entire payment to next smallest
+    # Will have to keep track of the smallest that isn't 0
+    # Also need to keep track of how many months for each card specifically, not just the total (for the payoff plan)
+    xcards_copy = copy.deepcopy(cards)
+    sorted_cards = sorted(xcards_copy.values(), key=lambda x: x[0])
+    xmonthly_remaining_balances = [] # This will be data for graph
+    xmonth_count = 0
+    xtotal_balance = sum([data[0] for data in xcards_copy.values()])
+    xinterest_paid = 0
+    
+    #===================== NEED TO ADAPT THIS TO APPLY SNOWBALL METHOD
+    while xtotal_balance > 0:
+        xmonth_count += 1
+        cc_month_counts = []
+        for card in xcards_copy.values():
+            amount_remaining = card[0]
+            if amount_remaining == 0: 
+                continue # Move on from this card if it's paid off
+            if xmonth_count == 1:
+                cc_month_counts.append(1)
+            apr = card[1]
+            min_payment = card[2]
+            interest = round((((apr / 100) / 365) * amount_remaining) * 30, 2)
+            if interest + amount_remaining < min_payment:
+                min_payment = interest + amount_remaining
+            principle = round(min_payment - interest, 2)
+            amount_remaining = round(amount_remaining - principle, 2)
+            card[0] = amount_remaining
+            xtotal_balance = round(xtotal_balance - principle, 2)
+            xinterest_paid = round(xinterest_paid + interest, 2)
+        xmonthly_remaining_balances.append(xtotal_balance)
+    
+    #print(xcards_copy)
+    
+    #months = list(range(1, month_count + 1))
+
+    # Visualize data
+    fig, ax = plt.subplots()
+    fig.suptitle("Credit Card Payoff Timeline")
+    ax.plot(months, monthly_remaining_balances)
+    #plt.show()
+    
+    #print(f"Months to pay off: {month_count}")
+    #print(monthly_remaining_balances)
+        
+
+num_cards = input("How many cards? ")
+if num_cards == "": num_cards = 3
+else:
+    num_cards = int(num_cards)
+cc_calculator(num_cards)
+#mortgage_calculator(400000, 5, 30, 22, 6, 500)
