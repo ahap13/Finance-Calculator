@@ -151,6 +151,8 @@ def cc_calculator(num_of_cards: int):
         min_payment = float(input("Minimum Payment: "))
         cards[f"card{card_num}"] = [amount, apr, min_payment]
     
+    extra_payment = float(input("How much extra can you afford to pay each month? "))
+    
     # Calculate how long it would take paying the minimum on each
     cards_copy = copy.deepcopy(cards)
     monthly_remaining_balances = [] # This will be data for graph
@@ -183,35 +185,72 @@ def cc_calculator(num_of_cards: int):
     # Will have to keep track of the smallest that isn't 0
     # Also need to keep track of how many months for each card specifically, not just the total (for the payoff plan)
     xcards_copy = copy.deepcopy(cards)
-    sorted_cards = sorted(xcards_copy.values(), key=lambda x: x[0])
+    sorted_cards = dict(sorted(xcards_copy.items(), key=lambda item: item[1][0]))
     xmonthly_remaining_balances = [] # This will be data for graph
     xmonth_count = 0
     xtotal_balance = sum([data[0] for data in xcards_copy.values()])
     xinterest_paid = 0
+    cc_month_counts = {}
+    # extra_payment already exists = float(input("How much extra can you afford to pay each month?"))
+
+    first = True
+    for val in sorted_cards.values():
+        if first: 
+            val.append(True)
+            first = False
+        else: val.append(False)
     
-    #===================== NEED TO ADAPT THIS TO APPLY SNOWBALL METHOD
+    change_smallest = False
+
+    # CURRENTLY NOT APPLYING EXTRA PAYMENT TO SECOND CARD AFTER FIRST IS PAID OFF
+    # THE BOOL SAYS TRUE SO THAT IS NOT THE ISSUE
     while xtotal_balance > 0:
         xmonth_count += 1
-        cc_month_counts = []
-        for card in xcards_copy.values():
-            amount_remaining = card[0]
+        leftover = 0
+        for card in sorted_cards.items():
+            amount_remaining = card[1][0]
             if amount_remaining == 0: 
                 continue # Move on from this card if it's paid off
             if xmonth_count == 1:
-                cc_month_counts.append(1)
-            apr = card[1]
-            min_payment = card[2]
+                cc_month_counts[card[0]] = 1
+            else: cc_month_counts[card[0]] += 1
+            apr = card[1][1]
+            min_payment = card[1][2]
+            if leftover > 1:
+                min_payment += leftover
+                leftover = 0
+            if card[1][-1]:
+                min_payment += extra_payment
+                print("Added extra payment")
             interest = round((((apr / 100) / 365) * amount_remaining) * 30, 2)
             if interest + amount_remaining < min_payment:
+                leftover = min_payment - (interest + amount_remaining)
+                change_smallest = True
+                extra_payment = min_payment
                 min_payment = interest + amount_remaining
+                print(f"Leftover: {leftover}")
+                print(f"New Extra Payment: {extra_payment}")
             principle = round(min_payment - interest, 2)
             amount_remaining = round(amount_remaining - principle, 2)
-            card[0] = amount_remaining
+            card[1][0] = amount_remaining
             xtotal_balance = round(xtotal_balance - principle, 2)
             xinterest_paid = round(xinterest_paid + interest, 2)
+            if change_smallest: 
+                card[1][-1] = True
+                change_smallest = False
+                print("updated smallest bool")
+
+            print("============================")
+            print(f"Card {card[0]}")
+            print("-------")
+            print(f"Payment Made: {min_payment}")
+            print(f"Balance remaining: {amount_remaining}")
+            print("=============================")
+        
         xmonthly_remaining_balances.append(xtotal_balance)
     
-    #print(xcards_copy)
+    print(cc_month_counts)
+    print(sorted_cards)
     
     #months = list(range(1, month_count + 1))
 
