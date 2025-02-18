@@ -202,8 +202,7 @@ def cc_calculator(num_of_cards: int):
     
     change_smallest = False
 
-    # CURRENTLY NOT APPLYING EXTRA PAYMENT TO SECOND CARD AFTER FIRST IS PAID OFF
-    # THE BOOL SAYS TRUE SO THAT IS NOT THE ISSUE
+    # NEED TO ADD STUFF FOR INSTRUCTIONS, BUT FUNCTIONING PROPERLY
     while xtotal_balance > 0:
         xmonth_count += 1
         leftover = 0
@@ -211,6 +210,9 @@ def cc_calculator(num_of_cards: int):
             amount_remaining = card[1][0]
             if amount_remaining == 0: 
                 continue # Move on from this card if it's paid off
+            if change_smallest: 
+                card[1][-1] = True
+                print("updated smallest bool")
             if xmonth_count == 1:
                 cc_month_counts[card[0]] = 1
             else: cc_month_counts[card[0]] += 1
@@ -220,7 +222,10 @@ def cc_calculator(num_of_cards: int):
                 min_payment += leftover
                 leftover = 0
             if card[1][-1]:
-                min_payment += extra_payment
+                if change_smallest:
+                    change_smallest = False
+                else:
+                    min_payment += extra_payment
                 print("Added extra payment")
             interest = round((((apr / 100) / 365) * amount_remaining) * 30, 2)
             if interest + amount_remaining < min_payment:
@@ -235,10 +240,7 @@ def cc_calculator(num_of_cards: int):
             card[1][0] = amount_remaining
             xtotal_balance = round(xtotal_balance - principle, 2)
             xinterest_paid = round(xinterest_paid + interest, 2)
-            if change_smallest: 
-                card[1][-1] = True
-                change_smallest = False
-                print("updated smallest bool")
+            
 
             print("============================")
             print(f"Card {card[0]}")
@@ -252,13 +254,17 @@ def cc_calculator(num_of_cards: int):
     print(cc_month_counts)
     print(sorted_cards)
     
-    #months = list(range(1, month_count + 1))
+    xmonths = list(range(1, xmonth_count + 1))
 
     # Visualize data
     fig, ax = plt.subplots()
     fig.suptitle("Credit Card Payoff Timeline")
     ax.plot(months, monthly_remaining_balances)
-    #plt.show()
+    ax.plot(xmonths, xmonthly_remaining_balances)
+    ax.set_xlabel("Number of Payments Made")
+    ax.set_ylabel("Total Balance Remaining")
+    ax.legend(["Making Minimum Payments", "Making Additional Payments"])
+    plt.show()
     
     #print(f"Months to pay off: {month_count}")
     #print(monthly_remaining_balances)
