@@ -34,7 +34,6 @@ def mortgage_calculator(
     # P=Principle, i=interest/12, n=number of payments
 
     # First calculate minimum monthly mortgage payment
-    # Need to see how much is going to principle and how much is going to interest
     i = (rate / 100) / 12 # Monthly interest rate
     n = term * 12
     min_payment = round(amount * ((i * (1 + i) ** n) / ((1 + i) ** n - 1)), 2)
@@ -43,7 +42,6 @@ def mortgage_calculator(
 
 
     # Get the total remaining months, months/amount paid so far
-    # Need to figure out how much principle is remaining specifically
     # monthly interest = loan balance x monthly interest rate, and monthly principal = total monthly payment - monthly interest
 
     remaining_term = (remaining_term_yrs * 12) + remaining_term_months
@@ -146,12 +144,24 @@ def cc_calculator(num_of_cards: int):
     cards = {}
     for card_num in range(1, num_of_cards + 1):
         print(f"Card {card_num}:")
-        amount = float(input("Balance: "))
-        apr = float(input("APR: "))
-        min_payment = float(input("Minimum Payment: "))
+        try:
+            amount = float(input("Balance: "))
+        except:
+            amount = float(input("Enter a valid number: "))
+        try:
+            apr = float(input("APR: "))
+        except:
+            apr = float(input("Enter a valid number: "))    
+        try:
+            min_payment = float(input("Minimum Payment: "))
+        except:
+            min_payment = float(input("Enter a valid number:"))
         cards[f"card{card_num}"] = [amount, apr, min_payment]
     
-    extra_payment = float(input("How much extra can you afford to pay each month? "))
+    try:
+        extra_payment = float(input("How much extra can you afford to pay each month? "))
+    except:
+        extra_payment = float(input("Enter a valid number: "))
     
     # Calculate how long it would take paying the minimum on each
     cards_copy = copy.deepcopy(cards)
@@ -181,9 +191,6 @@ def cc_calculator(num_of_cards: int):
     months = list(range(1, month_count + 1))
 
     # Do the same as above but apply extra payment to smallest card
-    # Once smallest card is paid off, add that entire payment to next smallest
-    # Will have to keep track of the smallest that isn't 0
-    # Also need to keep track of how many months for each card specifically, not just the total (for the payoff plan)
     xcards_copy = copy.deepcopy(cards)
     sorted_cards = dict(sorted(xcards_copy.items(), key=lambda item: item[1][0]))
     xmonthly_remaining_balances = [] # This will be data for graph
@@ -202,7 +209,7 @@ def cc_calculator(num_of_cards: int):
     
     change_smallest = False
 
-    # NEED TO ADD STUFF FOR INSTRUCTIONS, BUT FUNCTIONING PROPERLY
+    # Loop through and make payments with snowball method
     while xtotal_balance > 0:
         xmonth_count += 1
         leftover = 0
@@ -212,7 +219,6 @@ def cc_calculator(num_of_cards: int):
                 continue # Move on from this card if it's paid off
             if change_smallest: 
                 card[1][-1] = True
-                print("updated smallest bool")
             if xmonth_count == 1:
                 cc_month_counts[card[0]] = 1
             else: cc_month_counts[card[0]] += 1
@@ -226,33 +232,48 @@ def cc_calculator(num_of_cards: int):
                     change_smallest = False
                 else:
                     min_payment += extra_payment
-                print("Added extra payment")
             interest = round((((apr / 100) / 365) * amount_remaining) * 30, 2)
             if interest + amount_remaining < min_payment:
                 leftover = min_payment - (interest + amount_remaining)
                 change_smallest = True
                 extra_payment = min_payment
                 min_payment = interest + amount_remaining
-                print(f"Leftover: {leftover}")
-                print(f"New Extra Payment: {extra_payment}")
             principle = round(min_payment - interest, 2)
             amount_remaining = round(amount_remaining - principle, 2)
             card[1][0] = amount_remaining
             xtotal_balance = round(xtotal_balance - principle, 2)
             xinterest_paid = round(xinterest_paid + interest, 2)
-            
-
-            print("============================")
-            print(f"Card {card[0]}")
-            print("-------")
-            print(f"Payment Made: {min_payment}")
-            print(f"Balance remaining: {amount_remaining}")
-            print("=============================")
         
         xmonthly_remaining_balances.append(xtotal_balance)
     
-    print(cc_month_counts)
-    print(sorted_cards)
+    # Print data, instructions, and results
+    for card in cards.items():
+        print(f"Card {card[0][-1]}-----")
+        print(f"Balance: {card[1][0]}")
+        print(f"Minimum Payment: {card[1][2]}")
+    if num_of_cards > 1:
+        count = 0
+        last_month = 0
+        for card in cc_month_counts.items():
+            count += 1
+            name = card[0]
+            if count == 1:
+                print(f"Month 1 - Month {card[1]}:")
+                print(f"Apply your extra payment on Card {card[0][-1]} &")
+                print("pay the minimum on any other cards.")
+            elif count == num_of_cards:
+                print(f"Month {last_month + 1} - Month {card[1]}")
+                print(f"Add everything from the previous card(s) to the payment to Card {card[0][-1]}.")
+                print(f"You could be credit card debt free and pay off your {num_of_cards} cards in {int(xmonth_count // 12)} year(s) & {xmonth_count % 12} months!")
+            else:
+                print(f"Month {last_month + 1} - Month {card[1]}")
+                print(f"Add everything from the previous card(s) to the payment to Card {card[0][-1]} &")
+                print("pay the minimum on any other cards.")
+            last_month = card[1]
+    else:
+        print(f"With your extra payment you can pay off your card amd be credit card debt free in {int(xmonth_count // 12)} year(s) and {xmonth_count % 12} months!")
+    
+    print(f"That's far better than taking {int(month_count // 12)} year(s) and {month_count % 12} months just paying the minimum.")
     
     xmonths = list(range(1, xmonth_count + 1))
 
@@ -265,14 +286,14 @@ def cc_calculator(num_of_cards: int):
     ax.set_ylabel("Total Balance Remaining")
     ax.legend(["Making Minimum Payments", "Making Additional Payments"])
     plt.show()
-    
-    #print(f"Months to pay off: {month_count}")
-    #print(monthly_remaining_balances)
         
 
-num_cards = input("How many cards? ")
-if num_cards == "": num_cards = 3
-else:
-    num_cards = int(num_cards)
-cc_calculator(num_cards)
+def auto_calculator():
+    pass
+
+
 #mortgage_calculator(400000, 5, 30, 22, 6, 500)
+
+#num_cards = input("How many cards? ")
+#num_cards = int(num_cards)
+#cc_calculator(num_cards)
