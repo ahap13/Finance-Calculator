@@ -11,29 +11,32 @@ One function will calculate mortgage amount
 
 All return a graph of payoff over time, with one line including only minimum payments and one line being extra payment track"""
 
-def mortgage_calculator(
+def loan_calculator(
     amount: float,
     rate: float,
     term: int,
     remaining_term_yrs: int,
     remaining_term_months: int,
-    extra_payment_amount: int
+    extra_payment_amount: int,
+    loan_type: int
     ):
-    """Mortgage payoff timeline calculator. 
+    """Loan payoff timeline calculator. 
     
+    Mortgages and auto loans both use simple interest, so either one should work here
     Returns minimum monthly payment timeline and extra payment timeline with graphs, amount saved on interest, time saved
     
     Args: 
-    amount: Original mortgage amount
+    amount: Original loan amount
     rate: Interest rate
-    term: Mortgage term length (usually 30) 
+    term: Loan term length (in years)
     remaining_term: Time remaining in term, one var for years and one for months
-    extra_payment_amount: Amount extra being put toward the mortgage each month"""
+    extra_payment_amount: Amount extra being put toward the mortgage each month
+    loan_type: 0 for mortgage, 1 for auto loan"""
 
-    # Minimum Mortgage Payment = P ( (i(1 + i)^n) / ((1 + i)^n – 1))
+    # Minimum Loan Payment = P ( (i(1 + i)^n) / ((1 + i)^n – 1))
     # P=Principle, i=interest/12, n=number of payments
 
-    # First calculate minimum monthly mortgage payment
+    # First calculate minimum monthly loan payment
     i = (rate / 100) / 12 # Monthly interest rate
     n = term * 12
     min_payment = round(amount * ((i * (1 + i) ** n) / ((1 + i) ** n - 1)), 2)
@@ -104,7 +107,8 @@ def mortgage_calculator(
     # Visualize to compare the two lines
     # Print how much money in interest and time was saved
     fig, ax = plt.subplots()
-    fig.suptitle("Mortgage Payoff Timeline")
+    if loan_type == 0: fig.suptitle("Mortgage Payoff Timeline")
+    else: fig.suptitle("Loan Payoff Timeline")
     ax.plot(payments, monthly_remaining_balances, color="Gray") # Making Minimum Payments
     ax.plot(xpayments, xmonthly_remaining_balances, color="Blue") # Making Additional Payments
     ax.set_xlabel("Number of Payments Made")
@@ -112,7 +116,7 @@ def mortgage_calculator(
     ax.legend(["Making Minimum Payments", "Making Additional Payments"])
     plt.show()
 
-    print(f"Initial Mortgage Amount:                ${amount}")
+    print(f"Initial Loan Amount:                    ${amount}")
     print(f"Minimum Payment:                        ${min_payment:.2f}")
     print(f"Total Interest Paid if Paying Minimum:  ${interest_paid:.2f}")
     print(f"Total Amount Paid if Paying Minimum:    ${amount_paid:.2f}")
@@ -286,13 +290,9 @@ def cc_calculator(num_of_cards: int):
     ax.set_ylabel("Total Balance Remaining")
     ax.legend(["Making Minimum Payments", "Making Additional Payments"])
     plt.show()
-        
-
-def auto_calculator():
-    pass
 
 
-#mortgage_calculator(400000, 5, 30, 22, 6, 500)
+#loan_calculator(250000, 3.5, 30, 30, 0, 500, 0)
 
 #num_cards = input("How many cards? ")
 #num_cards = int(num_cards)
