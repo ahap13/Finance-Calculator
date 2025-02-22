@@ -148,24 +148,39 @@ def cc_calculator(num_of_cards: int):
     cards = {}
     for card_num in range(1, num_of_cards + 1):
         print(f"Card {card_num}:")
-        try:
-            amount = float(input("Balance: "))
-        except:
-            amount = float(input("Enter a valid number: "))
-        try:
-            apr = float(input("APR: "))
-        except:
-            apr = float(input("Enter a valid number: "))    
-        try:
-            min_payment = float(input("Minimum Payment: "))
-        except:
-            min_payment = float(input("Enter a valid number:"))
+        while True:
+            amount = input("Enter Balance: ")
+            try:
+                float(amount)
+                break
+            except:
+                print("Not a valid number.")
+
+        while True:
+            apr = input("APR: ")
+            try:
+                apr = float(apr)
+                break
+            except:
+                print("Please enter a valid APR.")
+
+        while True:
+            min_payment = input("Minimum Payment: ")
+            try:
+                min_payment = float(min_payment)
+                break
+            except:
+                print("Please enter a valid number.")
+
         cards[f"card{card_num}"] = [amount, apr, min_payment]
     
-    try:
-        extra_payment = float(input("How much extra can you afford to pay each month? "))
-    except:
-        extra_payment = float(input("Enter a valid number: "))
+    while True:
+        extra_payment = input("How much extra can you afford to pay each month?")
+        try:
+            extra_payment = float(min_payment)
+            break
+        except:
+            print("Please enter a valid number.")
     
     # Calculate how long it would take paying the minimum on each
     cards_copy = copy.deepcopy(cards)
@@ -292,8 +307,11 @@ def cc_calculator(num_of_cards: int):
     plt.show()
 
 
+##### FUNCS ARE WORKING, JUST NEED TO MAKE UI
+# MAKE SURE TO VALIDATE USER INPUT (SEE CC CALC INPUT VALIDATION)
+
 #loan_calculator(250000, 3.5, 30, 30, 0, 500, 0)
 
-#num_cards = input("How many cards? ")
-#num_cards = int(num_cards)
-#cc_calculator(num_cards)
+num_cards = input("How many cards? ")
+num_cards = int(num_cards)
+cc_calculator(num_cards)
