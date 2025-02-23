@@ -304,14 +304,37 @@ def cc_calculator(num_of_cards: int):
     ax.set_xlabel("Number of Payments Made")
     ax.set_ylabel("Total Balance Remaining")
     ax.legend(["Making Minimum Payments", "Making Additional Payments"])
-    plt.show()
+    #plt.show()
 
 
 ##### FUNCS ARE WORKING, JUST NEED TO MAKE UI
 # MAKE SURE TO VALIDATE USER INPUT (SEE CC CALC INPUT VALIDATION)
+print("What type of debt are you working with?")
+print("1. Mortgage")
+print("2. Auto")
+print("3. Credit Card")
+while True:
+    choice = input("Enter choice: ")
+    try:
+        choice = int(choice)
+        if choice < 1 or choice > 3:
+            print("Choice must be 1, 2, or 3.")
+        else: break
+    except:
+        print("Please enter a valid choice.")
+
+if choice == 1:
+    # Run mortgage calc func
+    pass
+elif choice == 2:
+    # Run auto loan calc
+    pass
+else:
+    # Run CC calc
+    pass
 
 #loan_calculator(250000, 3.5, 30, 30, 0, 500, 0)
 
-num_cards = input("How many cards? ")
-num_cards = int(num_cards)
-cc_calculator(num_cards)
+#num_cards = input("How many cards? ")
+#num_cards = int(num_cards)
+#cc_calculator(num_cards)
