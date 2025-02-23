@@ -11,6 +11,14 @@ One function will calculate mortgage amount
 
 All return a graph of payoff over time, with one line including only minimum payments and one line being extra payment track"""
 
+def is_int(inp: str):
+    """Quick Function to validate int inputs"""
+    try:
+        return int(inp)
+    except:
+        return None
+
+
 def loan_calculator(
     amount: float,
     rate: float,
@@ -120,14 +128,14 @@ def loan_calculator(
     print(f"Minimum Payment:                        ${min_payment:.2f}")
     print(f"Total Interest Paid if Paying Minimum:  ${interest_paid:.2f}")
     print(f"Total Amount Paid if Paying Minimum:    ${amount_paid:.2f}")
-    print(f"Time Taken to Pay:                      {n // 12} years, {n % 12} months")
-    print("=============================================================================================")
+    print(f"Time Taken to Pay:                      {n // 12} years, {n % 12} months\n")
+    print("=============================================================================================\n")
     print(f"Extra Payment Amount:                   ${extra_payment_amount:.2f}")
     print(f"New Payment Amount:                     ${min_payment + extra_payment_amount:.2f}")
     print(f"Total Interest Paid if Paying Extra:    ${xinterest_paid:.2f}")
     print(f"New Total Amount Paid:                  ${x_amount_paid:.2f}")
-    print(f"Time Taken to Pay with Extra:           ${month_count // 12} years, {month_count % 12} months")
-    print("=============================================================================================")
+    print(f"Time Taken to Pay with Extra:           ${month_count // 12} years, {month_count % 12} months\n")
+    print("=============================================================================================\n")
     print(f"Money Saved with Extra Payments:        ${amount_paid - x_amount_paid:.2f}")
     print(f"Time Saved with Extra Payments:         {(n - month_count) // 12} years, {(n - month_count) % 12} months")
 
@@ -151,7 +159,7 @@ def cc_calculator(num_of_cards: int):
         while True:
             amount = input("Enter Balance: ")
             try:
-                float(amount)
+                amount = float(amount)
                 break
             except:
                 print("Not a valid number.")
@@ -175,9 +183,9 @@ def cc_calculator(num_of_cards: int):
         cards[f"card{card_num}"] = [amount, apr, min_payment]
     
     while True:
-        extra_payment = input("How much extra can you afford to pay each month?")
+        extra_payment = input("How much extra can you afford to pay each month? ")
         try:
-            extra_payment = float(min_payment)
+            extra_payment = float(extra_payment)
             break
         except:
             print("Please enter a valid number.")
@@ -274,6 +282,7 @@ def cc_calculator(num_of_cards: int):
         count = 0
         last_month = 0
         for card in cc_month_counts.items():
+            print("")
             count += 1
             name = card[0]
             if count == 1:
@@ -304,7 +313,7 @@ def cc_calculator(num_of_cards: int):
     ax.set_xlabel("Number of Payments Made")
     ax.set_ylabel("Total Balance Remaining")
     ax.legend(["Making Minimum Payments", "Making Additional Payments"])
-    #plt.show()
+    plt.show()
 
 
 ##### FUNCS ARE WORKING, JUST NEED TO MAKE UI
@@ -314,27 +323,130 @@ print("1. Mortgage")
 print("2. Auto")
 print("3. Credit Card")
 while True:
-    choice = input("Enter choice: ")
+    choice = input("Enter type of debt: ")
     try:
         choice = int(choice)
-        if choice < 1 or choice > 3:
-            print("Choice must be 1, 2, or 3.")
-        else: break
     except:
-        print("Please enter a valid choice.")
+        print("Please enter a valid choice")
+        continue
+    if choice > 3 or choice < 1:
+        print("Choice must either be 1, 2, or 3.")
+    else: break
 
 if choice == 1:
     # Run mortgage calc func
-    pass
+    # Need to get balance, apr, term, yrs remaining, months remaining, extra payment
+    while True:
+        amount = input("Total Mortgage Amount: ")
+        try:
+            amount = int(amount)
+            break
+        except:
+            print("Enter a valid number.")
+
+    while True:
+        apr = input("APR: ")
+        try:
+            apr = float(apr)
+            break
+        except:
+            print("Enter a valid rate.")
+    
+    while True:
+        term = input("Term: ")
+        try:
+            term = int(term)
+            break
+        except:
+            print("Enter a valid number.")
+    
+    while True:
+        yrs_remaining = input("Years Remaining: ")
+        try:
+            yrs_remaining = int(yrs_remaining)
+            break
+        except:
+            print("Enter a valid number.")
+    
+    while True:
+        mo_remaining = input("Months Remaining: ")
+        try:
+            mo_remaining = int(mo_remaining)
+            break
+        except:
+            print("Enter a valid number.")
+    
+    while True:
+        extra_payment = input("How much extra will you pay each month? ")
+        try:
+            extra_payment = int(extra_payment)
+            break
+        except:
+            print("Enter a valid number.")
+
+    loan_calculator(amount, apr, term, yrs_remaining, mo_remaining, extra_payment, 0)
+    
 elif choice == 2:
     # Run auto loan calc
-    pass
+    while True:
+        amount = input("Total Loan Amount: ")
+        try:
+            amount = int(amount)
+            break
+        except:
+            print("Enter a valid number.")
+
+    while True:
+        apr = input("APR: ")
+        try:
+            apr = float(apr)
+            break
+        except:
+            print("Enter a valid rate.")
+    
+    while True:
+        term = input("Term: ")
+        try:
+            term = int(term)
+            break
+        except:
+            print("Enter a valid number.")
+    
+    while True:
+        yrs_remaining = input("Years Remaining: ")
+        try:
+            yrs_remaining = int(yrs_remaining)
+            break
+        except:
+            print("Enter a valid number.")
+    
+    while True:
+        mo_remaining = input("Months Remaining: ")
+        try:
+            mo_remaining = int(mo_remaining)
+            break
+        except:
+            print("Enter a valid number.")
+    
+    while True:
+        extra_payment = input("How much extra will you pay each month? ")
+        try:
+            extra_payment = int(extra_payment)
+            break
+        except:
+            print("Enter a valid number.")
+
+    loan_calculator(amount, apr, term, yrs_remaining, mo_remaining, extra_payment, 1)
+
 else:
     # Run CC calc
-    pass
-
-#loan_calculator(250000, 3.5, 30, 30, 0, 500, 0)
-
-#num_cards = input("How many cards? ")
-#num_cards = int(num_cards)
-#cc_calculator(num_cards)
+    # Just need number of cards
+    while True:
+        num_cards = input("How many cards? ")
+        try:
+            num_cards = int(num_cards)
+            break
+        except:
+            print("Enter a valid number.")
+    
+    cc_calculator(num_cards)
